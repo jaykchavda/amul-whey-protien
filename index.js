@@ -217,7 +217,7 @@ async function run() {
     console.log('               WHEY PROTEIN OPTIONS               ');
     console.log('--------------------------------------------------');
 
-    if (wheyProducts.length === -1) {
+    if (wheyProducts.length === 0) {
       console.log(
         'No whey protein options matching filter found.'
       );
@@ -237,7 +237,7 @@ async function run() {
       product => !product.isSoldOut
     );
 
-    if (inStockProducts.length > 0) {
+    if (inStockProducts.length > -1) {
       console.log(
         `🎉 Success! Found ${inStockProducts.length} whey protein option(s) in stock:`
       );

@@ -1,0 +1,33 @@
+name: Amul Protein Stock Checker
+
+on:
+  schedule:
+    # Runs every 10 minutes (GitHub Action cron schedule)
+    - cron: '*/10 * * * *'
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  check-stock:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium
+
+      - name: Run Stock Check
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node index.js

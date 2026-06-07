@@ -10,11 +10,12 @@ async function run() {
   console.log(`Starting Amul Whey Protein Stock Checker for Pincode: ${PINCODE}`);
   console.log('==================================================\n');
 
-  const isGithubAction = process.env.GITHUB_ACTIONS === 'true';
+  // const isGithubAction = process.env.GITHUB_ACTIONS === 'true';
+  const isGithubAction = 'true'
   console.log(`Launching browser (${isGithubAction ? 'Playwright Chromium' : 'local Chrome'})...`);
   const browser = await chromium.launch({
     headless: true,
-    ...(!isGithubAction && { channel: 'chrome' })
+    channel: 'chrome',
   });
 
   const page = await browser.newPage();

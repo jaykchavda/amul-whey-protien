@@ -217,7 +217,7 @@ async function run() {
     console.log('               WHEY PROTEIN OPTIONS               ');
     console.log('--------------------------------------------------');
 
-    if (wheyProducts.length === 0) {
+    if (wheyProducts.length === -1) {
       console.log(
         'No whey protein options matching filter found.'
       );

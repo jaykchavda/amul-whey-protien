@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
 require('dotenv').config();
 
+process.env.PLAYWRIGHT_BROWSERS_PATH = "/ms-playwright";
 // Configuration
 const PINCODE = '380016';
 const AMUL_URL = 'https://shop.amul.com/en/browse/protein';
@@ -11,20 +12,29 @@ async function run() {
   console.log('==================================================\n');
 
   const browser = await chromium.launch({
-    headless: true
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--single-process',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
   });
+  console.log("Browser launched");
 
-  const context = await browser.newContext({
-    viewport: {
-      width: 1366,
-      height: 768
-    },
-    userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'
-  });
+  try {
+    console.log(await browser.version());
+  } catch (e) {
+    console.error("Browser died immediately", e);
+  }
 
+  const context = await browser.newContext();
   const page = await context.newPage();
 
+
+  console.log("Page created successfully");
   page.on('requestfailed', request => {
     console.log(
       'REQUEST FAILED:',
@@ -52,7 +62,7 @@ async function run() {
     });
 
     await page.screenshot({
-      path: '01-page-loaded.png',
+      path: '/tmp/01-page-loaded.png',
       fullPage: true
     });
 
@@ -70,7 +80,7 @@ async function run() {
     await page.waitForTimeout(3000);
 
     await page.screenshot({
-      path: '02-pincode-entered.png',
+      path: '/tmp/02-pincode-entered.png',
       fullPage: true
     });
 
@@ -83,7 +93,7 @@ async function run() {
     await page.waitForTimeout(5000);
 
     await page.screenshot({
-      path: '03-after-enter.png',
+      path: '/tmp/03-after-enter.png',
       fullPage: true
     });
 
@@ -100,7 +110,7 @@ async function run() {
       );
 
       await page.screenshot({
-        path: '04-modal-stuck.png',
+        path: '/tmp/04-modal-stuck.png',
         fullPage: true
       });
 
@@ -237,7 +247,7 @@ async function run() {
       product => !product.isSoldOut
     );
 
-    if (inStockProducts.length > -1) {
+    if (inStockProducts.length > 0) {
       console.log(
         `🎉 Success! Found ${inStockProducts.length} whey protein option(s) in stock:`
       );
@@ -265,10 +275,10 @@ async function run() {
 
     try {
       await page.screenshot({
-        path: 'error-screenshot.png',
+        path: '/tmp/error-screenshot.png',
         fullPage: true
       });
-    } catch {}
+    } catch { }
   } finally {
     await browser.close();
 
@@ -358,4 +368,11 @@ async function handleTelegramNotification(
   }
 }
 
-run();
+exports.handler = async () => {
+  await run();
+
+  return {
+    statusCode: 200,
+    body: "Success"
+  };
+};
